@@ -21,6 +21,7 @@ fs.readFile('./prompt.txt', 'utf8', function(err, data) {
 
 let channelId = process.env.CHANNEL_ID;
 let counter = 0;
+let lastResponse = '';
 
 function sleep(ms) {
     return new Promise((resolve) => {
@@ -49,7 +50,8 @@ client.on("message", function(message) {
     (async() => {
         await sleep(3000);
         const response = await manager.process("en", message.content);
-        if (response.answer == undefined) {
+
+        if (response.answer == undefined || response.answer == lastResponse) {
             console.log('couldnt get an answer! for: ' + message.content);
             return;
         } else if (isEmoji(response.answer)) {
@@ -59,6 +61,7 @@ client.on("message", function(message) {
         } else {
             message.reply(`${response.answer}`);
         }
+        lastResponse = response.answer;
         console.log('Replying to:' + message.author.tag + ', with message: ' + message.content + ', response: ' + response.answer);
     })();
 });
