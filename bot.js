@@ -41,7 +41,7 @@ client.on("message", function(message) {
         if (response.answer == undefined) {
             console.log('couldnt get an answer! for: ' + message.content);
             return;
-        } else if (Math.random() < 0.80) {
+        } else if ((Math.random() < 0.80)) {
             message.channel.send(`${response.answer}`);
         } else {
             message.reply(`${response.answer}`);
