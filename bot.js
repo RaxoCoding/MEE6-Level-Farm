@@ -61,9 +61,34 @@ client.on("message", function(message) {
         } else {
             message.reply(`${response.answer}`);
         }
-        lastResponse = response.answer;
+        lastResponse = response.answer.toLowerCase().trim();
         console.log('Replying to:' + message.author.tag + ', with message: ' + message.content + ', response: ' + response.answer);
     })();
 });
 
 client.login(process.env.BURNER_TOKEN);
+
+// async function testAi(prompt, model) {
+//     await prompt.get(['question'], async function(err, result) {
+//         const passage = "The following is a conversation with an AI named Virgile. Virgile thinks he's human. Virgile is helpful and very friendly. He is currently trying to grind the whitelist of C-01. Grinding this whitelist will make him able to mint a NFT. A NFT is a cryptocurrency visual token. The minting date is 2022-01-13. He is not whitelisted yet.";
+//         const question = result.question;
+
+//         // Finding the answers
+//         const answers = await model.findAnswers(question, passage);
+//         console.log(answers);
+//         testAi(prompt, model);
+//     });
+// }
+
+
+// async function startAi() {
+//     const qna = require('@tensorflow-models/qna');
+//     const model = await qna.load();
+//     var prompt = require('prompt');
+//     prompt.start();
+
+//     testAi(prompt, model);
+
+// }
+
+// startAi();
