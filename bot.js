@@ -2,12 +2,20 @@ require('dotenv').config();
 const { NlpManager } = require("node-nlp");
 const Discord = require('discord.js-selfbot');
 var fs = require('fs');
-const client = new Discord.Client();
 
 // Creating new Instance of NlpManager class.
 const manager = new NlpManager({ languages: ["en"] });
 // Loading our saved model
 manager.load();
+
+require("./extendedMessage");
+
+const client = new Discord.Client({
+    allowedMentions: {
+        // set repliedUser value to `false` to turn off the mention by default
+        repliedUser: true
+    }
+});
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -45,10 +53,8 @@ client.on('ready', () => {
                 return;
             } else if (isEmoji(response.answer)) {
                 message.react(response.answer);
-            } else if ((Math.random() < 0.80)) {
-                message.channel.send(`${response.answer}`);
             } else {
-                message.reply(`${response.answer}`);
+                message.inlineReply(`${response.answer}`);
             }
             lastResponse = response.answer.toLowerCase().trim();
             console.log('\n Replying to:' + message.author.tag + ', with message: ' + message.content + ', response: ' + response.answer);
