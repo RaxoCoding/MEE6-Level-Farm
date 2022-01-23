@@ -11,6 +11,52 @@ manager.load();
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+
+    let minutesToAdd = process.env.MESSAGE_DELAY;
+    let currentDate = new Date();
+    let countDownDate = new Date(currentDate.getTime() + (minutesToAdd * 60000)).getTime();
+    let countDownDistance;
+    let currentlyRunning = false;
+
+    var x = setInterval(function() {
+        // Get today's date and time
+        var now = new Date().getTime();
+        // Find the distance between now and the count down date
+        countDownDistance = countDownDate - now;
+        process.stdout.clearLine(0);
+        process.stdout.cursorTo(0);
+        process.stdout.write("Countdown to Next Message: " + Math.max(0, Math.ceil(countDownDistance / 1000)) + ' seconds');
+    }, 1000);
+
+    client.on("message", function(message) {
+        if (message.author.bot) return;
+        if (message.author.id == client.user.id) return;
+        if (message.channel.id != channelId) return;
+        if (countDownDistance > 0 || currentlyRunning) return;
+        currentlyRunning = true;
+
+        (async() => {
+            await sleep(3000);
+            const response = await manager.process("en", message.content);
+
+            if (response.answer == undefined || response.answer == lastResponse) {
+                console.log('\n couldnt get an answer! for: ' + message.content);
+                currentlyRunning = false;
+                return;
+            } else if (isEmoji(response.answer)) {
+                message.react(response.answer);
+            } else if ((Math.random() < 0.80)) {
+                message.channel.send(`${response.answer}`);
+            } else {
+                message.reply(`${response.answer}`);
+            }
+            lastResponse = response.answer.toLowerCase().trim();
+            console.log('\n Replying to:' + message.author.tag + ', with message: ' + message.content + ', response: ' + response.answer);
+            currentDate = new Date();
+            countDownDate = new Date(currentDate.getTime() + (minutesToAdd * 60000)).getTime();
+            setTimeout(() => { currentlyRunning = false; }, 1000);
+        })();
+    });
 });
 
 let prompt = ''
@@ -39,32 +85,6 @@ function isEmoji(str) {
         return false;
     }
 }
-
-
-client.on("message", function(message) {
-    if (message.author.bot) return;
-    if (message.channel.id != channelId) return;
-    counter++;
-    if (counter <= process.env.MESSAGE_DELAY) return;
-    counter = 0;
-    (async() => {
-        await sleep(3000);
-        const response = await manager.process("en", message.content);
-
-        if (response.answer == undefined || response.answer == lastResponse) {
-            console.log('couldnt get an answer! for: ' + message.content);
-            return;
-        } else if (isEmoji(response.answer)) {
-            message.react(response.answer);
-        } else if ((Math.random() < 0.80)) {
-            message.channel.send(`${response.answer}`);
-        } else {
-            message.reply(`${response.answer}`);
-        }
-        lastResponse = response.answer.toLowerCase().trim();
-        console.log('Replying to:' + message.author.tag + ', with message: ' + message.content + ', response: ' + response.answer);
-    })();
-});
 
 client.login(process.env.BURNER_TOKEN);
 
